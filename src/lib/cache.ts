@@ -8,7 +8,7 @@ const clientCache = {
   lastFetchTime: 0
 };
 
-const CLIENT_CACHE_DURATION_MS = 1000 * 60; // 1 minute client-side caching to avoid spamming the local API
+const CLIENT_CACHE_DURATION_MS = 1000 * 10; // 10 seconds // 1 minute client-side caching to avoid spamming the local API
 
 const fetchFromAPI = async () => {
   const now = Date.now();
