@@ -1,0 +1,86 @@
+{
+  "entities": {
+    "Admin": {
+      "title": "Admin",
+      "description": "Authorized administrators.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "role", "created_at"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Store products with sizes.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "subcategory": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "sale_price": { "type": "number" },
+        "is_active": { "type": "boolean" },
+        "images": { "type": "array" },
+        "sizes": { "type": "object", "description": "Map of size to stock quantity" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "category", "price", "is_active", "images", "sizes"]
+    },
+    "Collection": {
+      "title": "Collection",
+      "description": "Daily sales collections",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string" },
+        "cash_amount": { "type": "number" },
+        "upi_amount": { "type": "number" },
+        "card_amount": { "type": "number" },
+        "other_amount": { "type": "number" },
+        "total_amount": { "type": "number" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["date", "cash_amount", "upi_amount", "card_amount", "other_amount", "total_amount"]
+    },
+    "Settings": {
+      "title": "Settings",
+      "description": "Store global settings",
+      "type": "object",
+      "properties": {
+        "store_name": { "type": "string" },
+        "phone": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "address": { "type": "string" },
+        "hours": { "type": "string" },
+        "instagram": { "type": "string" },
+        "maps_url": { "type": "string" },
+        "currency": { "type": "string" },
+        "low_stock_threshold": { "type": "number" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["store_name", "currency", "low_stock_threshold"]
+    }
+  },
+  "firestore": {
+    "/admins/{userId}": {
+      "schema": { "$ref": "#/entities/Admin" },
+      "description": "Admins collection"
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Products collection"
+    },
+    "/sales_collections/{collectionId}": {
+      "schema": { "$ref": "#/entities/Collection" },
+      "description": "Daily sales collection"
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/Settings" },
+      "description": "Settings collection"
+    }
+  }
+}

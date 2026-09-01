@@ -1,0 +1,6 @@
+{
+  "name": "Rayka Kapda House",
+  "description": "Premium Fashion Retail Store in Ahmedabad, Gujarat, India.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,95 @@
+--- src/components/ProductModal.tsx
++++ src/components/ProductModal.tsx
+@@ -1,5 +1,5 @@
+ import { motion, AnimatePresence } from "motion/react";
+-import { X } from "lucide-react";
++import { X, ChevronLeft, ChevronRight } from "lucide-react";
+ import { useState, useEffect } from "react";
+ import { Product } from "../types";
+ import { doc, getDoc } from "firebase/firestore";
+@@ -19,6 +19,7 @@
+   const [mobileNumber, setMobileNumber] = useState<string>("");
+   const [isFullScreenImage, setIsFullScreenImage] = useState(false);
+   const [whatsappNumber, setWhatsappNumber] = useState("9723770286"); // Default
++  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+ 
+   useEffect(() => {
+     // Fetch whatsapp number from settings
+@@ -47,6 +48,7 @@
+ 
+   useEffect(() => {
+     if (product) {
++      setCurrentImageIndex(0);
+       // Auto-select first available size
+       const firstAvailable = Object.keys(product.sizes || {}).find(size => product.sizes[size] > 0);
+       setSelectedSize(firstAvailable || "");
+@@ -128,21 +130,59 @@
+               >
+                 <X size={20} />
+               </button>
+ 
+               {/* Image Section (Fixed height on mobile, full height on desktop) */}
+               <div 
+-                className="w-full md:w-1/2 h-[40vh] md:h-full relative flex-shrink-0 bg-black cursor-pointer group"
+-                onClick={() => setIsFullScreenImage(true)}
++                className="w-full md:w-1/2 h-[40vh] md:h-full relative flex-shrink-0 bg-black cursor-pointer group overflow-hidden"
+               >
+-                {product.images?.[0] && (
+-                  <img 
+-                    src={product.images[0]} 
+-                    alt={product.name} 
+-                    className="w-full h-full object-cover transition-opacity group-hover:opacity-90"
+-                    style={{ paddingLeft: '0px', paddingTop: '-28px', marginTop: '-8px' }}
+-                  />
+-                )}
++                <div 
++                  className="w-full h-full flex transition-transform duration-300 ease-out"
++                  style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
++                  onClick={() => setIsFullScreenImage(true)}
++                >
++                  {product.images?.map((img, idx) => (
++                    <div key={idx} className="w-full h-full flex-shrink-0 relative">
++                      <img 
++                        src={img} 
++                        alt={`${product.name} - image ${idx + 1}`} 
++                        className="w-full h-full object-cover transition-opacity group-hover:opacity-90"
++                      />
++                    </div>
++                  ))}
++                </div>
++
++                {/* Image Navigation Arrows (Desktop) */}
++                {product.images && product.images.length > 1 && (
++                  <>
++                    <button 
++                      onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => Math.max(0, prev - 1)); }}
++                      className={`absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 text-white rounded-full hover:bg-black/80 transition-colors hidden md:flex ${currentImageIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
++                      disabled={currentImageIndex === 0}
++                    >
++                      <ChevronLeft size={20} />
++                    </button>
++                    <button 
++                      onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(prev => Math.min((product.images?.length || 1) - 1, prev + 1)); }}
++                      className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 text-white rounded-full hover:bg-black/80 transition-colors hidden md:flex ${currentImageIndex === (product.images?.length || 1) - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
++                      disabled={currentImageIndex === (product.images?.length || 1) - 1}
++                    >
++                      <ChevronRight size={20} />
++                    </button>
++                  </>
++                )}
++
++                {/* Image Indicators */}
++                {product.images && product.images.length > 1 && (
++                  <div className="absolute bottom-4 left-0 right-0 flex flex-col items-center gap-2 pointer-events-none">
++                    <span className="bg-black/60 text-white text-[10px] font-mono px-2 py-0.5 rounded-sm backdrop-blur-sm">
++                      {currentImageIndex + 1} / {product.images.length}
++                    </span>
++                    <div className="flex justify-center gap-1.5">
++                      {product.images.map((_, idx) => (
++                        <div key={idx} className={`w-1.5 h-1.5 rounded-full transition-colors ${currentImageIndex === idx ? 'bg-white' : 'bg-white/40'}`} />
++                      ))}
++                    </div>
++                  </div>
++                )}
+ 
+                 {product.sale_price && (
