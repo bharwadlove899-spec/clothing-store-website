@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, deleteDoc, doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { Product } from '../../types';
 import { Link } from 'react-router-dom';
@@ -50,12 +50,36 @@ export default function Products() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-2xl font-serif tracking-wide text-white">Products</h2>
-        <Link 
-          to="/admin/products/new" 
-          className="bg-white text-black px-4 py-2 text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-neutral-200 transition-colors"
-        >
-          <Plus size={16} /> Add Product
-        </Link>
+        <div className="flex gap-4">
+          <button 
+            onClick={async () => {
+              const batch = writeBatch(db);
+              let count = 0;
+              for (const p of products) {
+                if (p.is_active === undefined) {
+                  batch.update(doc(db, 'products', p.id), { is_active: true });
+                  count++;
+                }
+              }
+              if (count > 0) {
+                await batch.commit();
+                alert(`Fixed ${count} missing product statuses! They will now show on the website.`);
+                fetchProducts();
+              } else {
+                alert('All products are already fixed.');
+              }
+            }}
+            className="bg-red-900/30 text-red-400 border border-red-900/50 px-4 py-2 text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-red-900/50 transition-colors"
+          >
+            Fix Hidden Products
+          </button>
+          <Link 
+            to="/admin/products/new" 
+            className="bg-white text-black px-4 py-2 text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-neutral-200 transition-colors"
+          >
+            <Plus size={16} /> Add Product
+          </Link>
+        </div>
       </div>
 
       <div className="bg-zinc-900 border border-zinc-800 rounded p-4">
